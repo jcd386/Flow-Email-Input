@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>64.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>Flow Email Input</masterLabel>
+    <description>Email input with format validation for Screen Flows. Drop-in replacement for the default Email component.</description>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="label" type="String" label="Label" default="Email" role="inputOnly"/>
+            <property name="value" type="String" label="Value" description="The email address value"/>
+            <property name="required" type="Boolean" label="Required" default="false" role="inputOnly"/>
+            <property name="placeholder" type="String" label="Placeholder" default="you@example.com" role="inputOnly"/>
+            <property name="disabled" type="Boolean" label="Disabled" default="false" role="inputOnly"/>
+            <property name="helpText" type="String" label="Help Text" role="inputOnly"/>
+            <property name="isValid" type="Boolean" label="Is Valid" role="outputOnly" description="True when the current value passes email format validation"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>
