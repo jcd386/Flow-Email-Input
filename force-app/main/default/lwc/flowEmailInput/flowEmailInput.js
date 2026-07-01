@@ -1,7 +1,8 @@
 import { LightningElement, api } from 'lwc';
 import { FlowAttributeChangeEvent } from 'lightning/flowSupport';
 
-const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,}$/;
+const INVALID_EMAIL_MSG = 'Please enter a valid email address (e.g., name@example.com)';
 
 export default class FlowEmailInput extends LightningElement {
     @api label = 'Email';
@@ -13,6 +14,10 @@ export default class FlowEmailInput extends LightningElement {
 
     _value = '';
 
+    connectedCallback() {
+        this.dispatchEvent(new FlowAttributeChangeEvent('isValid', true));
+    }
+
     @api
     get value() {
         return this._value;
@@ -21,14 +26,14 @@ export default class FlowEmailInput extends LightningElement {
         this._value = val || '';
     }
 
-    get emailValue() {
-        return this._value;
-    }
-
     @api
     validate() {
         const input = this.template.querySelector('lightning-input');
         const currentValue = (this._value || '').trim();
+
+        if (input) {
+            input.setCustomValidity('');
+        }
 
         if (this.required && !currentValue) {
             if (input) {
@@ -46,37 +51,31 @@ export default class FlowEmailInput extends LightningElement {
 
         if (!EMAIL_REGEX.test(currentValue)) {
             if (input) {
-                input.setCustomValidity('Please enter a valid email address (e.g., name@example.com)');
+                input.setCustomValidity(INVALID_EMAIL_MSG);
                 input.reportValidity();
             }
             return {
                 isValid: false,
-                errorMessage: 'Please enter a valid email address (e.g., name@example.com)'
+                errorMessage: INVALID_EMAIL_MSG
             };
         }
 
         if (input) {
-            input.setCustomValidity('');
             input.reportValidity();
         }
         return { isValid: true };
     }
 
     handleChange(event) {
-        const newValue = event.target.value;
+        const newValue = event.target.value.trim();
         this._value = newValue;
-        this._notifyFlow(newValue);
+        this.dispatchEvent(new FlowAttributeChangeEvent('value', newValue));
     }
 
     handleBlur() {
-        this._notifyFlow(this._value);
-        this._validateAndShowErrors();
-    }
-
-    _notifyFlow(newValue) {
-        this.dispatchEvent(new FlowAttributeChangeEvent('value', newValue));
-        const valid = !newValue || EMAIL_REGEX.test(newValue);
+        const valid = !this._value || EMAIL_REGEX.test(this._value);
         this.dispatchEvent(new FlowAttributeChangeEvent('isValid', valid));
+        this._validateAndShowErrors();
     }
 
     _validateAndShowErrors() {
@@ -85,7 +84,7 @@ export default class FlowEmailInput extends LightningElement {
 
         const currentValue = (this._value || '').trim();
         if (currentValue && !EMAIL_REGEX.test(currentValue)) {
-            input.setCustomValidity('Please enter a valid email address (e.g., name@example.com)');
+            input.setCustomValidity(INVALID_EMAIL_MSG);
         } else {
             input.setCustomValidity('');
         }
